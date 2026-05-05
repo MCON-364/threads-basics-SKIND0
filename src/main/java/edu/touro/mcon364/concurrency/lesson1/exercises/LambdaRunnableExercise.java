@@ -49,6 +49,14 @@ public class LambdaRunnableExercise {
      * wrap it in a Thread named "logger", start it, and join it.
      */
     public void launchLoggerThread(List<String> log, String message) throws InterruptedException {
+        Runnable r = () -> {
+            this.loggedMessage = message;
+            log.add(message);
+            System.out.println(message);
+        };
+        Thread LoggedMessage = new Thread(r, "Logger");
+        LoggedMessage.start();
+        LoggedMessage.join();
         // TODO: create a Runnable lambda, pass it to new Thread(..., "logger"),
         //       start the thread, join it, and store the message in loggedMessage.
     }
@@ -60,6 +68,29 @@ public class LambdaRunnableExercise {
      * Start both, then join both before returning.
      */
     public void launchTwoCounterThreads(List<Task> tasks) throws InterruptedException {
+
+        Thread a = new Thread(() -> {
+            for (Task t : tasks) {
+                if (t.priority() == Priority.HIGH) {
+                    highCount++;
+                }
+            }
+        }, "counter-a");
+
+
+        Thread b = new Thread(() -> {
+            for (Task t : tasks) {
+                if (t.priority() == Priority.LOW) {
+                    lowCount++;
+                }
+            }
+        }, "counter-b");
+        a.start();
+        b.start();
+        a.join();
+        b.join();
+
+
         // TODO: create two threads using inline lambda syntax, start both,
         //       join both, and store results in highCount and lowCount.
     }

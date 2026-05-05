@@ -3,6 +3,7 @@ package edu.touro.mcon364.concurrency.lesson1.exercises;
 import edu.touro.mcon364.concurrency.common.model.Task;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Exercise 2: Thread creation, naming, start(), and join()
@@ -38,6 +39,18 @@ public class TaskWorker {
      * Must block until the thread finishes.
      */
     public void run() throws InterruptedException {
+        Thread a = new Thread(() -> {
+            for (Task t : tasks) {
+                processedCount++;
+                if (threadName != null) {
+                    this.workerName = threadName;
+                }
+            }
+        }, threadName);
+
+
+        a.start();
+        a.join();
         // TODO: create a thread with the given name that processes every task
         //       in the list (increment processedCount for each one),
         //       then start it and join it.
