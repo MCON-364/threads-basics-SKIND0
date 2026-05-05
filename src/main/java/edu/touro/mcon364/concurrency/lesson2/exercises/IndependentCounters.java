@@ -35,8 +35,15 @@ public class IndependentCounters {
      * TODO: replace the synchronized keyword with an explicit lock.
      *       Remember: always release the lock even if an exception is thrown.
      */
-    public synchronized void read() {
-        readCount++;
+
+    private final Lock lock = new ReentrantLock();
+    public void read() {
+         lock.lock();
+         try {
+             readCount++;
+         } finally {
+             lock.unlock();
+         }
     }
 
     /**
@@ -44,8 +51,13 @@ public class IndependentCounters {
      * TODO: replace the synchronized keyword with an explicit lock.
      *       Remember: always release the lock even if an exception is thrown.
      */
-    public synchronized void write() {
-        writeCount++;
+    public void write() {
+        lock.lock();
+        try {
+            writeCount++;
+        } finally {
+            lock.unlock();
+        }
     }
 
     public int getReadCount()  { return readCount; }

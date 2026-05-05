@@ -3,6 +3,7 @@ package edu.touro.mcon364.concurrency.lesson2.exercises;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.stream.IntStream;
 
 /**
  * Exercise 5 — Returning values from concurrent tasks with {@link Callable} and
@@ -41,19 +42,40 @@ public class ParallelSumCalculator {
             throws InterruptedException, ExecutionException {
 
         // TODO: create a thread pool with the right number of workers
+        ExecutorService pool = Executors.newFixedThreadPool(workers);
 
         // TODO: divide numbers into roughly equal slices — one slice per worker
         //       Think: how do you calculate the slice size without losing
         //       the last few elements when the list doesn't divide evenly?
+        List<Integer> num = IntStream.rangeClosed(1, numbers.size()).boxed().toList();
+        int chunkSize = (num.size() + workers - 1) / workers;
+
 
         // TODO: submit each slice as a task that returns its partial sum.
         //       Collect the handles to the results — but do NOT ask for the
         //       answers yet, so that all slices run at the same time.
         List<Future<Long>> futures = new ArrayList<>();
+        for (int i = 0; i < workers; i++) {
+            int from = i * chunkSize;
+            if (from >= numbers.size()) break;
+            int to = Math.min(from + chunkSize, numbers.size());
+            List<Integer> slice = numbers.subList(from, to);
+
+            futures.add(pool.submit(() -> {
+                long sum = 0;
+                for (int n : slice) sum += n;
+                return sum;
+            }));
+        }
+
 
         // TODO: now that all slices are running, collect each partial sum
         //       and add it to the total
         long total = 0;
+        for (Future<Long> f : futures) {
+            total += f.get();
+        }
+
 
         // TODO: release pool resources before returning
         return total;
